@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Benim Web Sayfam</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{
+  --info-bg: rgba(0,0,0,0.55);
+  --info-color: #fff;
+  --btn-bg: rgba(0,198,255,0.95);
+  --btn-hover: rgba(0,153,204,0.95);
+}
+html,body{height:100%;margin:0;}
+body {
+  margin:0;
+  height:100vh;
+  font-family: Arial, sans-serif;
+  color:#fff;
+  text-align:center;
+  overflow:hidden;
+  flex-direction:column;
+  position:relative;
+  background: #0f0c29;
+}
+h1, p, button{margin:0; transition:opacity .5s;}
+h1{font-size:3em; font-weight:900; color:#fff; text-shadow:1px 1px 3px #000;}
+p{font-size:1.6em; font-weight:900; color:#fff; text-shadow:1px 1px 3px #000; margin-top:10px;}
+button{
+  margin-top:15px;
+  padding:16px 32px;
+  font-size:18px;
+  font-weight:bold;
+  border:none;
+  border-radius:10px;
+  background-color:var(--btn-bg);
+  color:white;
+  cursor:pointer;
+  transition:transform .15s, background-color .15s;
+}
+button:hover{background-color:var(--btn-hover); transform:scale(1.05);}
+#banaBasBtn {
+  padding:16px 120px;
+  font-size:22px;
+  font-weight:bold;
+  background-color: var(--btn-bg);
+  border:none;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
+  transition: transform .15s, background-color .15s;
+  margin-top:25px;
+  white-space: nowrap;
+}
+#banaBasBtn:hover {
+  background-color: var(--btn-hover);
+  transform: scale(1.05);
+}
+#backBtn, #backBtnPhoto, #backBtnPhone, #backBtnNotify{
+  position:fixed;
+  top:15px;
+  right:15px;
+  padding:10px 16px;
+  font-size:1em;
+  border-radius:8px;
+  border:none;
+  background-color:#000;
+  color:#fff;
+  cursor:pointer;
+  display:none;
+  z-index:50;
+}
+#backBtn:hover, #backBtnPhoto:hover, #backBtnPhone:hover, #backBtnNotify:hover{background-color:#222;}
+body.tema2{background:#0f0c29;}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  filter: blur(12px);
+  animation: floatOrb linear infinite;
+}
+@keyframes floatOrb {
+  0% { transform: translateY(110vh) scale(0); }
+  50% { transform: translateY(50vh) scale(1); }
+  100% { transform: translateY(-10vh) scale(0); }
+}
+video, canvas, img{display:none; margin-top:20px; border:2px solid #000; max-width:90%; height:auto;}
+#pageIP, #pagePhoto, #pagePhone, #pageNotify{display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh;}
+#phoneInfoContainer div{margin-bottom:4px;}
+#weatherBox{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:rgba(0,0,0,0.7);
+  padding:10px 0;
+  font-size:1em;
+  font-weight:bold;
+  color:#fff;
+  text-align:center;
+  z-index:999;
+}
+#blackScreen {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%;
+  height:100%;
+  background-color:#000;
+  z-index:9999;
+}
+
+/* ---- DESTROY OVERLAY (ENTEGRASYON) ---- */
+#destroyOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  justify-content:center;
+  align-items:center;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:cover;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  flex-direction:column;
+  gap:18px;
+}
+#destroyPanel{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  height:100%;
+  position:relative;
+}
+#destroyText{
+  color:#5a0000;
+  font-family:'Courier New', monospace;
+  font-size:64px;
+  font-weight:900;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 24px rgba(139,0,0,0.12);
+  letter-spacing:2px;
+  white-space:pre;
+  pointer-events:none;
+  transform-origin:center;
+  opacity:0;
+  mix-blend-mode: screen;
+}
+/* stronger scanlines + vignette */
+#scanlines {
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  background-image: linear-gradient(rgba(0,0,0,0.06) 1px, transparent 3px);
+  background-size:100% 6px;
+  mix-blend-mode: overlay;
+  opacity:0.45;
+}
+#vignette {
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.7) 100%);
+  mix-blend-mode: multiply;
+}
+
+/* glitch flicker */
+@keyframes flicker {
+  0% { opacity:0; transform: translateY(0); filter: blur(6px); }
+  10% { opacity:1; filter: blur(0px); transform: translateY(-2px) skewX(-2deg); }
+  30% { opacity:0.9; transform: translateY(0) skewX(2deg); }
+  50% { opacity:1; transform: translateY(-1px) skewX(-1deg); }
+  70% { opacity:0.85; transform: translateY(0) skewX(1deg); }
+  100% { opacity:1; transform: translateY(0); filter: blur(0px); }
+}
+#destroyText.glitch {
+  animation: flicker 1.2s steps(3, end) forwards;
+}
+
+/* small shake effect when each character appears */
+@keyframes shakeX {
+  0% { transform: translateX(0) }
+  20% { transform: translateX(-6px) }
+  40% { transform: translateX(4px) }
+  60% { transform: translateX(-2px) }
+  80% { transform: translateX(2px) }
+  100% { transform: translateX(0) }
+}
+
+/* responsive text */
+@media (max-width:600px){
+  #destroyText{font-size:30px;padding:0 12px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<div id="mainPage">
+  <div id="textContainer">
+    <h1>Hoşgeldiniz</h1>
+    <p>Bizi Seçtiginiz için tesekkür ederiz</p>
+  </div>
+  <div style="display:flex; gap:20px; justify-content:center; margin-top:30px; flex-wrap: wrap;">
+    <button id="ipBtn">IP'nizi Gör</button>
+    <button id="cameraBtn">Fotoğraf Çek</button>
+    <button id="phoneBtn">TELEFON BİLGİLERİNİ GÖR</button>
+    <button id="notifyBtn">Web Sayfası Bildirimlerini Gör</button>
+  </div>
+  <div>
+    <button id="banaBasBtn">BANA BAS</button>
+  </div>
+</div>
+
+<!-- Destroy overlay entegre edilmiş (tek dosya) -->
+<div id="destroyOverlay" aria-hidden="true">
+  <div id="destroyPanel">
+    <div id="vignette"></div>
+    <div id="scanlines"></div>
+    <div id="destroyText"></div>
+  </div>
+</div>
+
+<!-- Eski blackScreen'i koruduk -->
+<div id="blackScreen"></div>
+
+<!-- SESİ BASE64 GÖMDÜK (kendi base64'ini buraya koyabilirsin) -->
+<audio id="screamAudio" preload="auto">
+  <source src="data:audio/mp3;base64,//UklGRjQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA..." type="audio/mp3">
+</audio>
+
+<!-- IP SAYFASI -->
+<div id="pageIP">
+  <button id="backBtn">Geri</button>
+  <h1>İŞTE IP’NİZ</h1>
+  <div id="info" style="display:flex; flex-direction:column; align-items:center; margin-top:30px;">
+    <div id="ipText" style="font-size:3em; font-weight:bold; margin-bottom:20px;">--</div>
+    <div id="locContainer" style="display:block;">
+      <button id="locBtn" disabled>Konumu Gör</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOTOĞRAF SAYFASI -->
+<div id="pagePhoto">
+  <button id="backBtnPhoto">Geri</button>
+  <video id="video" autoplay></video>
+  <canvas id="canvas"></canvas>
+  <img id="photo">
+  <button id="snapBtn">Fotoğrafını Gör</button>
+</div>
+
+<!-- TELEFON BİLGİLERİ SAYFASI -->
+<div id="pagePhone">
+  <button id="backBtnPhone">Geri</button>
+  <h1>TELEFON BİLGİLERİNİZ</h1>
+  <div id="phoneInfoContainer" style="text-align:left; max-width:90%; margin:auto; background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; line-height:1.5; overflow-y:auto; max-height:75vh;">
+    <div><strong>User Agent:</strong> <span id="uaText">--</span></div>
+    <div><strong>İşletim Sistemi:</strong> <span id="osText">--</span></div>
+    <div><strong>Dil:</strong> <span id="langText">--</span></div>
+    <div><strong>Ekran Çözünürlüğü:</strong> <span id="screenText">--</span></div>
+    <div><strong>Ülke:</strong> <span id="countryText">--</span></div>
+    <div><strong>Şehir:</strong> <span id="cityText">--</span></div>
+    <div><strong>Pil Yüzdesi:</strong> <span id="batteryLevel">--</span></div>
+    <div><strong>Şarj Durumu:</strong> <span id="chargingStatus">--</span></div>
+    <div><strong>Device Memory:</strong> <span id="deviceMemory">--</span></div>
+    <div><strong>CPU Cores:</strong> <span id="cpuCores">--</span></div>
+    <div><strong>Tarayıcı Vendor:</strong> <span id="browserVendor">--</span></div>
+    <div><strong>VPN/Proxy Durumu:</strong> <span id="vpnProxy">--</span></div>
+  </div>
+</div>
+
+<!-- WEB SAYFASI BİLDİRİMLERİ SAYFASI -->
+<div id="pageNotify">
+  <button id="backBtnNotify">Geri</button>
+  <h1>WEB SAYFASI BILDİRİMLERİ</h1>
+  <div id="notifyDiv">Henüz Bildiriminiz Bulunmamaktadır.</div>
+</div>
+
+<div id="weatherBox">Hava durumu yükleniyor...</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  let lastCoords=null, stream=null;
+
+  function showPage(showId){
+    const pages = ['mainPage','pageIP','pagePhoto','pagePhone','pageNotify'];
+    pages.forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.style.display = (id===showId)?(id==='mainPage'?'block':'flex'):'none';
+    });
+    document.getElementById('backBtn').style.display=(showId==='pageIP')?'block':'none';
+    document.getElementById('backBtnPhoto').style.display=(showId==='pagePhoto')?'block':'none';
+    document.getElementById('backBtnPhone').style.display=(showId==='pagePhone')?'block':'none';
+    document.getElementById('backBtnNotify').style.display=(showId==='pageNotify')?'block':'none';
+    if(showId==='mainPage' && stream){stream.getTracks().forEach(t=>t.stop()); stream=null;}
+  }
+
+  document.getElementById('textContainer').onclick=()=>{
+    confetti({particleCount:200, spread:100, origin:{y:0.6}});
+    document.getElementById('textContainer').innerHTML='<h1>BİZİ KULLANDIĞINIZ İÇİN TEŞEKKÜRLER</h1>';
+  }
+
+  document.getElementById('ipBtn').onclick=()=>{
+    showPage('pageIP');
+    const locBtn = document.getElementById('locBtn');
+    locBtn.disabled = true;
+    locBtn.innerText = "Konumu Gör";
+
+    fetch('https://ipwho.is/')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("ipText").innerText = data?.ip || "IP alınamadı";
+        document.getElementById('countryText').innerText = data.country || '--';
+        document.getElementById('cityText').innerText = data.city || '--';
+      })
+      .catch(err => { document.getElementById("ipText").innerText="IP alınamadı"; console.warn(err); });
+
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(pos=>{
+        lastCoords={lat:pos.coords.latitude, lon:pos.coords.longitude};
+        locBtn.disabled = false;
+        locBtn.onclick = ()=>{
+          const latF = lastCoords.lat.toFixed(6);
+          const lonF = lastCoords.lon.toFixed(6);
+          const mapsUrl = `https://www.google.com/maps?q=${latF},${lonF}`;
+          window.open(mapsUrl,'_blank');
+        }
+      }, err=>{
+        console.warn('Konum alınamadı veya izin reddedildi:',err);
+        locBtn.innerText="Konum alınamadı";
+        locBtn.disabled=true;
+      });
+    }
+  }
+
+  document.getElementById('phoneBtn').onclick=async ()=>{
+    showPage('pagePhone');
+    const ua = navigator.userAgent;
+    const lang = navigator.language || '--';
+    const osMatch = ua.match(/([^)]+)/);
+    const os = osMatch ? osMatch[1] : '--';
+    const screenRes = screen.width+'x'+screen.height;
+    const deviceMemory = navigator.deviceMemory || '--';
+    const cpuCores = navigator.hardwareConcurrency || '--';
+    const browserVendor = navigator.vendor || '--';
+
+    document.getElementById('uaText').innerText = ua;
+    document.getElementById('osText').innerText = os;
+    document.getElementById('langText').innerText = lang;
+    document.getElementById('screenText').innerText = screenRes;
+    document.getElementById('deviceMemory').innerText = typeof deviceMemory === 'number' ? (deviceMemory + ' GB') : deviceMemory;
+    document.getElementById('cpuCores').innerText = cpuCores;
+    document.getElementById('browserVendor').innerText = browserVendor;
+
+    if(navigator.getBattery){
+      const battery = await navigator.getBattery();
+      document.getElementById('batteryLevel').innerText = Math.round(battery.level*100) + '%';
+      document.getElementById('chargingStatus').innerText = battery.charging ? 'Şarj Oluyor' : 'Şarj Olmuyor';
+    }
+
+    fetch('https://ipwho.is/')
+      .then(res=>res.json())
+      .then(data=>{
+        let isp = data.isp || '';
+        if(isp.toLowerCase().includes('vpn') || isp.toLowerCase().includes('proxy')){
+          document.getElementById('vpnProxy').innerText = 'VPN/Proxy Algılandı: ' + isp;
+        } else {
+          document.getElementById('vpnProxy').innerText = 'VPN/Proxy Bulunamadı';
+        }
+      })
+      .catch(err=>{
+        console.warn(err);
+        document.getElementById('vpnProxy').innerText = 'Kontrol Edilemedi';
+      });
+  }
+
+  document.getElementById('cameraBtn').onclick = async ()=>{
+    showPage('pagePhoto');
+    const video = document.getElementById('video');
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({video:true});
+      video.srcObject = stream;
+      video.onloadedmetadata = ()=>{
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage
+        (video,0,0);
+        photo.src = canvas.toDataURL('image/png');
+      }
+    } catch(err){
+      alert('Kamera açılamadı veya izin verilmedi.');
+      console.warn(err);
+    }
+  }
+  document.getElementById('snapBtn').onclick = ()=>{
+    document.getElementById('photo').style.display='block';
+    document.getElementById('snapBtn').style.display='none';
+    if(stream){stream.getTracks().forEach(t=>t.stop()); stream=null;}
+  }
+
+  async function updateWeather() {
+    const weatherDiv = document.getElementById('weatherBox');
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(async (pos)=>{
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const key = '164ffa28451abb80fde64f4dfb43968b';
+        try{
+          const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=tr&appid=${key}`);
+          const data = await res.json();
+          if(data.weather){
+            weatherDiv.innerText = `${data.name}: ${data.weather[0].description}, ${data.main.temp}°C`;
+          } else {
+            weatherDiv.innerText = 'Hava durumu bulunamadı.';
+          }
+        } catch(e){
+          weatherDiv.innerText = 'Hava durumu alınamadı.';
+          console.warn(e);
+        }
+      }, (err)=>{
+        weatherDiv.innerText = 'Konum izni verilmedi veya bulunamadı.';
+        console.warn(err);
+      });
+    } else {
+      weatherDiv.innerText = 'Konum desteklenmiyor.';
+    }
+  }
+  updateWeather();
+  setInterval(updateWeather, 600000);
+
+  document.getElementById('notifyBtn').onclick = ()=>{
+    showPage('pageNotify');
+    if(Notification.permission==='granted'){
+      document.getElementById('notifyDiv').innerText='Henüz Bildiriminiz Bulunmamaktadır.';
+    } else if(Notification.permission!=='denied'){
+      Notification.requestPermission().then(perm=>{
+        if(perm==='granted'){
+          document.getElementById('notifyDiv').innerText='Henüz Bildiriminiz Bulunmamaktadır.';
+        } else {
+          document.getElementById('notifyDiv').innerText='Bildirim izni verilmedi.';
+        }
+      });
+    } else {
+      document.getElementById('notifyDiv').innerText='Bildirim izni verilmedi.';
+    }
+  }
+
+  // ---- Entegre destroy overlay ----
+  const destroyOverlay = document.getElementById('destroyOverlay');
+  const destroyText = document.getElementById('destroyText');
+  const scream = document.getElementById('screamAudio');
+  let destroyShown=false;
+
+  function pickRandomChar(){ return String.fromCharCode(33 + Math.floor(Math.random()*94)); }
+
+  async function showDestroyOverlay(){
+    if(destroyShown) return; // sadece bir kez göster
+    destroyShown=true;
+
+    destroyOverlay.style.backgroundImage = "url('Screenshot_2025-09-30-17-31-23-924-edit_com.google.android.googlequicksearchbox.jpg')";
+    destroyOverlay.style.display = 'flex';
+    destroyOverlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+
+    destroyText.style.opacity = '0';
+    destroyText.textContent = '';
+    await new Promise(r=>setTimeout(r,120));
+
+    try{ scream.currentTime = 0; scream.play().catch(()=>{}); }catch(e){}
+
+    const phrases = ["File Destroying...", "Bye Bye Phone!"];
+    let repeatCount = 0;
+
+    function showPhrase(index){
+      let i = 0;
+      const final = phrases[index];
+      destroyText.style.opacity = '1';
+      destroyText.classList.add('glitch');
+
+      function step(){
+        if(i < final.length){
+          destroyText.textContent = (destroyText.textContent.slice(0,-1) || '') + pickRandomChar();
+          setTimeout(()=>{
+            destroyText.textContent = final.slice(0, i+1);
+            destroyText.style.animation = 'shakeX 220ms';
+            setTimeout(()=>{ destroyText.style.animation = ''; }, 220);
+            i++;
+            const nextDelay = 60 + Math.floor(Math.random()*140);
+            setTimeout(step, nextDelay);
+          }, 50 + Math.floor(Math.random()*90));
+        } else {
+          destroyText.classList.add('glitch');
+          setTimeout(()=>{
+            repeatCount++;
+            if(repeatCount<3){
+              showPhrase(index);
+            } else if(index<phrases.length-1){
+              showPhrase(index+1);
+            } else {
+              // bitince kaybolsun
+              destroyOverlay.style.display='none';
+              destroyOverlay.setAttribute('aria-hidden','true');
+              document.body.style.overflow='';
+              try{ scream.pause(); scream.currentTime=0; }catch(e){}
+            }
+          }, 600);
+        }
+      }
+      step();
+    }
+
+    showPhrase(0);
+  }
+
+  document.getElementById('banaBasBtn').onclick = ()=>{
+    if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+    showDestroyOverlay();
+  }
+
+  // blackScreen fallback
+  document.getElementById('blackScreen').onclick = ()=>{
+    document.getElementById('blackScreen').style.display='none';
+    try{ scream.pause(); scream.currentTime = 0; }catch(e){}
+  }
+
+  document.getElementById('backBtn').onclick = ()=> showPage('mainPage');
+  document.getElementById('backBtnPhoto').onclick = ()=> showPage('mainPage');
+  document.getElementById('backBtnPhone').onclick = ()=> showPage('mainPage');
+  document.getElementById('backBtnNotify').onclick = ()=> showPage('mainPage');
+
+});
+</script>
+</body>
+</html>
